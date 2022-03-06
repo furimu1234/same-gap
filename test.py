@@ -7,7 +7,7 @@ from aiohttp import ClientSession
 
 from config import SCRIPTID, BOOKID
 
-async def main(data="test sheet"):
+async def main():
     
     payload = {
         "gmail": "example@gmail.com",
@@ -34,7 +34,6 @@ async def main(data="test sheet"):
 
 
 if __name__ == "__main__":
-    # postしたいデータを渡す
 
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())

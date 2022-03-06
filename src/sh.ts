@@ -15,18 +15,6 @@ interface PostEvent {
   };
 }
 
-interface GetEvent {
-  queryString?: string;
-  parameter?: { [index: string]: string; };
-  parameters?: { [index: string]: [string]; };
-  contentLenth: number;
-  getData: {
-    length: number;
-    type: string;
-    contents: string;
-    name: string;
-  };
-}
 
 interface Json{
   type: string,
@@ -37,12 +25,6 @@ interface Json{
   row: number,
   col: number,
   value: string
-}
-
-interface getJson{
-  bookid?: string;  
-  filename?: string;
-  sheetname: string;
 }
 
 
