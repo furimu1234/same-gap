@@ -27,36 +27,29 @@ interface Json{
   value: string
 }
 
+const mainbook = SpreadsheetApp.openById("1HtGLfZMu7TqxOQUIrGRfk8WS6saq-vMNhQg3tKrEQZk");
 
 function doPost(data: PostEvent) {
-  var json: Json = JSON.parse(data.postData.contents);
+  const json: Json = JSON.parse(data.postData.contents);
 
   if (json.type === "create"){
-    const mainbook = SpreadsheetApp.openById("1HtGLfZMu7TqxOQUIrGRfk8WS6saq-vMNhQg3tKrEQZk");
-    let workbook = mainbook.copy(json.filename || "");
+    const workbook = mainbook.copy(json.filename || "");
     workbook.addEditor(json.gmail || "");
 
     return ContentService.createTextOutput(`${workbook.getId()}:${workbook.getUrl()}`);  
   }
 
+  const book = getWorkBook(data);
+  const sheet = getSheet(data, book);
 
-  else if (json.type === "post"){
-    var book = getWorkBook(data);
-
-    var sheet = getSheet(data, book);
-  
+  if (json.type === "post"){
     sheet.getRange(json.row, json.col).setValue(json.value)
   
     return ContentService.createTextOutput("ok");  
   }
 
   else if (json.type === "get"){
-
-    var book = getWorkBook(data);
-
-    var sheet = getSheet(data, book);
-
-    var value = sheet.getRange(json.row, json.col).getValue();
+    const value = sheet.getRange(json.row, json.col).getValue();
 
     return ContentService.createTextOutput(value);
   }
@@ -65,13 +58,13 @@ function doPost(data: PostEvent) {
 
 
 function getWorkBook(data: PostEvent){
-  var json: Json = JSON.parse(data.postData.contents);
-  var workbook: GoogleAppsScript.Spreadsheet.Spreadsheet;
+  const json: Json = JSON.parse(data.postData.contents);
+  let workbook: GoogleAppsScript.Spreadsheet.Spreadsheet;
+
   try{
       workbook = SpreadsheetApp.openById(json.bookid || "");
   }
   catch(e){
-    const mainbook = SpreadsheetApp.openById("1HtGLfZMu7TqxOQUIrGRfk8WS6saq-vMNhQg3tKrEQZk");
     workbook = mainbook.copy(json.filename || "");
     
   }
@@ -80,9 +73,8 @@ function getWorkBook(data: PostEvent){
 
 
 function getSheet(data: PostEvent, book: Spreadsheet){
-  var json: Json = JSON.parse(data.postData.contents);
-
-  var sheet = book.getSheetByName(json.sheetname);
+  const json: Json = JSON.parse(data.postData.contents);
+  let sheet = book.getSheetByName(json.sheetname);
 
   if(!sheet){
       sheet = book.insertSheet();
