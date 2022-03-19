@@ -16,40 +16,55 @@ interface PostEvent {
 }
 
 
-interface Json{
+interface Json {
   type: string,
   gmail?: string,
-  bookid?: string;  
+  bookid?: string;
   filename?: string;
   sheetname: string;
-  row: number,
-  col: number,
+  range: string;
   value: string
 }
 
-const mainbook = SpreadsheetApp.openById("1HtGLfZMu7TqxOQUIrGRfk8WS6saq-vMNhQg3tKrEQZk");
+const mainbook = SpreadsheetApp.openById("1qUtA-TNdsDcST7kb17VqOrWbiEOuSUeRMaq4iYZvKtM");
+
+function doGet() {
+  let workbook = SpreadsheetApp.openById("754680802578792498");
+  let sheet = workbook.getSheetByName("基本設定") || workbook.insertSheet();
+  let values = sheet.getRange("B5:B6").getValues();
+
+  return ContentService.createTextOutput(values);
+}
+
 
 function doPost(data: PostEvent) {
   const json: Json = JSON.parse(data.postData.contents);
 
-  if (json.type === "create"){
+  if (json.type === "create") {
     const workbook = mainbook.copy(json.filename || "");
     workbook.addEditor(json.gmail || "");
 
-    return ContentService.createTextOutput(`${workbook.getId()}:${workbook.getUrl()}`);  
+    return ContentService.createTextOutput(`${workbook.getId()}:${workbook.getUrl()}`);
   }
 
   const book = getWorkBook(data);
-  const sheet = getSheet(data, book);
 
-  if (json.type === "post"){
-    sheet.getRange(json.row, json.col).setValue(json.value)
-  
-    return ContentService.createTextOutput("ok");  
+  if (json.type == "invite") {
+    book.addEditor(json.gmail || "");
+    return ContentService.createTextOutput(`${book.getUrl()}`);
   }
 
-  else if (json.type === "get"){
-    const value = sheet.getRange(json.row, json.col).getValue();
+  const sheet = getSheet(data, book);
+
+
+  if (json.type === "post") {
+    sheet.getRange(json.range).setValue(json.value)
+
+    return ContentService.createTextOutput("ok");
+  }
+
+  else if (json.type === "get") {
+    const value = sheet.getRange(json.range).getValues();
 
     return ContentService.createTextOutput(value);
   }
@@ -57,28 +72,28 @@ function doPost(data: PostEvent) {
 }
 
 
-function getWorkBook(data: PostEvent){
+function getWorkBook(data: PostEvent) {
   const json: Json = JSON.parse(data.postData.contents);
   let workbook: GoogleAppsScript.Spreadsheet.Spreadsheet;
 
-  try{
-      workbook = SpreadsheetApp.openById(json.bookid || "");
+  try {
+    workbook = SpreadsheetApp.openById(json.bookid || "");
   }
-  catch(e){
+  catch (e) {
     workbook = mainbook.copy(json.filename || "");
-    
+
   }
   return workbook;
 }
 
 
-function getSheet(data: PostEvent, book: Spreadsheet){
+function getSheet(data: PostEvent, book: Spreadsheet) {
   const json: Json = JSON.parse(data.postData.contents);
   let sheet = book.getSheetByName(json.sheetname);
 
-  if(!sheet){
-      sheet = book.insertSheet();
-      sheet.setName(json.sheetname);
+  if (!sheet) {
+    sheet = book.insertSheet();
+    sheet.setName(json.sheetname);
   }
   return sheet;
 }
