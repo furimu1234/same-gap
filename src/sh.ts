@@ -71,6 +71,7 @@ function doPost(data: PostEvent) {
 
 }
 
+
 function getWorkBook(data: PostEvent) {
   const json: Json = JSON.parse(data.postData.contents);
   let workbook: GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -79,17 +80,7 @@ function getWorkBook(data: PostEvent) {
     workbook = SpreadsheetApp.openById(json.bookid || "");
   }
   catch (e) {
-    let now = new Date();
-
-    let month: number = now.getMonth();
-    let day: number = now.getDay();
-    let hour: number = now.getHours();
-    let minute: number = now.getMinutes();
-    let second: number = now.getSeconds();
-
-    let error_date = `${month}/${day} ${hour}:${minute}:${second}`;
-
-    workbook = mainbook.copy(json.filename || `error_date ${error_date}`);
+    workbook = mainbook.copy(json.filename || "");
 
   }
   return workbook;
